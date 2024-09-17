@@ -14,6 +14,7 @@ import com.yeongjin.kopring.global.redis.RedisLockRepository
 import com.yeongjin.kopring.global.utils.SecurityContextUtils
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.AbstractApplicationContext
 import org.springframework.data.repository.findByIdOrNull
@@ -31,12 +32,18 @@ class PaymentService(
     private val redisLockRepository: RedisLockRepository,
     private val applicationContext: ApplicationContext
 ) {
+    private val log = LoggerFactory.getLogger(this.javaClass)
+
     @Transactional
     fun createPayment(
         req: CreatePaymentReq
     ) {
-        if (!redisLockRepository.lock(SecurityContextUtils.memberId))
+        if (!redisLockRepository.lock(SecurityContextUtils.memberId)) {
+            log.warn("${SecurityContextUtils.memberId}번 유저의 결제가 중복으로 발생해 차단됨")
             throw CustomException(ExceptionContent.PAYMENT_IN_PROGRESS)
+        }
+
+        log.info("${SecurityContextUtils.memberId}번 유저의 결제 시작...")
 
         val member = memberRepository.findByIdOrNull(SecurityContextUtils.memberId)
             ?: throw CustomException(NOT_FOUND_MEMBER)
@@ -45,6 +52,7 @@ class PaymentService(
 
         paymentRepository.save(payment)
         redisLockRepository.unlock(SecurityContextUtils.memberId)
+        log.info("${SecurityContextUtils.memberId}번 유저의 결제 종료")
     }
 
     fun readPayments(

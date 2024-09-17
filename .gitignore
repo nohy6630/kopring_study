@@ -42,3 +42,6 @@ out/
 ### YML ###
 application-dev.yml
 application-prod.yml
+
+### Log ###
+spring-boot-logger.log
