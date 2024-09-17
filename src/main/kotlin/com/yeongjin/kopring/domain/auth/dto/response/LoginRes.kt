@@ -15,7 +15,7 @@ data class LoginRes(
             val token = JwtUtils
                 .createToken(member, secretKey, tokenExpire)
 
-            return LoginRes(token)
+            return LoginRes(accessToken = token)
         }
     }
 }
