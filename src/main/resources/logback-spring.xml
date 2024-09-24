@@ -4,27 +4,29 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <Pattern>%d{HH:mm} %-5level %logger{36} - %msg%n</Pattern>
+            <Pattern>[%X{request_id:-is_not_request}] %d{HH:mm} %-5level %logger{36} - %msg%n</Pattern>
         </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS}/spring-boot-logger.log</file>
-        <encoder>
-            <Pattern>%d{HH:mm} %-5level %logger{36} - %msg%n</Pattern>
-        </encoder>
+    <springProfile name="prod, dev">
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOGS}/spring-boot-logger.log</file>
+            <encoder>
+                <Pattern>[%X{request_id:-startup}] %d{HH:mm} %-5level %logger{36} - %msg%n</Pattern>
+            </encoder>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>50</maxHistory>
-        </rollingPolicy>
-    </appender>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>/%d{yyyy-MM-dd}.log</fileNamePattern>
+                <maxHistory>50</maxHistory>
+            </rollingPolicy>
+        </appender>
+
+        <root level="info">
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
 
     <root level="debug">
         <appender-ref ref="CONSOLE"/>
-    </root>
-
-    <root level="info">
-        <appender-ref ref="FILE"/>
     </root>
 </configuration>
