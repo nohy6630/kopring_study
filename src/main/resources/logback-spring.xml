@@ -26,7 +26,7 @@
         </root>
     </springProfile>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
